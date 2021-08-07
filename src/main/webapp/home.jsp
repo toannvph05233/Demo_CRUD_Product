@@ -89,9 +89,8 @@
 <div class="container-fluid bg-1 text-center">
   <h3 class="margin">Who Am I?</h3>
   <img src="img/anh4.jpeg" class="img-responsive img-circle margin" style="display:inline" alt="Bird" width="350" height="350">
-  <h3>I'm an adventurer</h3>
+  <h3>xin chào ${userName}</h3>
 </div>
-
 <!-- Second Container -->
 <div class="container-fluid bg-2 text-center">
   <h3 class="margin">What Am I?</h3>
@@ -114,6 +113,7 @@
         <a href="/?action=create" class="btn btn-success">Create</a>
         <a  href="/?action=edit&index=${loop.index}" class="btn btn-warning">Edit</a>
         <a href="/?action=delete&index=${loop.index}" class="btn btn-danger">Delete</a>
+        <a href="/?action=addCart&id=${product.id}" class="btn btn-danger">Add Cart</a>
       </div>
     </c:forEach>
 

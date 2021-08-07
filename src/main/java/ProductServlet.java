@@ -6,12 +6,14 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.ArrayList;
 
 @WebServlet(urlPatterns = {""})
 public class ProductServlet extends HttpServlet {
     ArrayList<Product> list = new ArrayList<>();
+    ArrayList<Product> cart = new ArrayList<>();
 
     @Override
     public void init() throws ServletException {
@@ -23,33 +25,58 @@ public class ProductServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String action = req.getParameter("action");
+        RequestDispatcher requestDispatcher;
 
+        HttpSession session = req.getSession();
+        String userName = session.getAttribute("userName").toString();
 
         if (action == null) {
-
-        } else {
-            switch (action) {
-                case "create":
-                    resp.sendRedirect("CreateProduct.jsp");
-                    break;
-                case "delete":
-                    int indexDelete = Integer.parseInt(req.getParameter("index"));
-                    list.remove(indexDelete);
-                    break;
-                case "edit":
-                    int indexEdit = Integer.parseInt(req.getParameter("index"));
-                    Product product = list.get(indexEdit);
-                    req.setAttribute("product", product);
-                    RequestDispatcher requestDispatcher;
-                    requestDispatcher = req.getRequestDispatcher("editProduct.jsp");
-                    requestDispatcher.forward(req, resp);
-            }
+            action = "";
         }
 
-        req.setAttribute("listProduct", list);
-        RequestDispatcher requestDispatcher;
-        requestDispatcher = req.getRequestDispatcher("home.jsp");
-        requestDispatcher.forward(req, resp);
+        switch (action) {
+            case "create":
+                resp.sendRedirect("CreateProduct.jsp");
+                break;
+            case "delete":
+                int indexDelete = Integer.parseInt(req.getParameter("index"));
+                list.remove(indexDelete);
+                req.setAttribute("listProduct", list);
+                requestDispatcher = req.getRequestDispatcher("home.jsp");
+                requestDispatcher.forward(req, resp);
+                break;
+            case "edit":
+                int indexEdit = Integer.parseInt(req.getParameter("index"));
+                Product product = list.get(indexEdit);
+                req.setAttribute("product", product);
+                requestDispatcher = req.getRequestDispatcher("editProduct.jsp");
+                requestDispatcher.forward(req, resp);
+                break;
+            case "addCart":
+                int id = Integer.parseInt(req.getParameter("id"));
+                Product product1 = findById(id);
+                if (product1 != null) {
+                    cart.add(product1);
+                }
+
+                session.setAttribute("cart",cart);
+
+                req.setAttribute("listProduct", list);
+                requestDispatcher = req.getRequestDispatcher("home.jsp");
+                requestDispatcher.forward(req, resp);
+
+                break;
+            case "showCart":
+                req.setAttribute("listCart", cart);
+                requestDispatcher = req.getRequestDispatcher("cartProduct.jsp");
+                requestDispatcher.forward(req, resp);
+                break;
+            default:
+                req.setAttribute("listProduct", list);
+                req.setAttribute("userName", userName);
+                requestDispatcher = req.getRequestDispatcher("home.jsp");
+                requestDispatcher.forward(req, resp);
+        }
     }
 
     @Override
@@ -65,4 +92,14 @@ public class ProductServlet extends HttpServlet {
         resp.sendRedirect("/");
 
     }
+
+    public Product findById(int id) {
+        for (Product p : list) {
+            if (p.getId() == id) {
+                return p;
+            }
+        }
+        return null;
+    }
+
 }
